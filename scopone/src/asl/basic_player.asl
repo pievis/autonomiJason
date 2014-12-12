@@ -1,11 +1,15 @@
 // Agent basic_player in project scopone
 
 /* Initial beliefs and rules */
+cardsOnHand([]). //lista di carte che ha in mano, inizialmente vuota
 
 /* Initial goals */
 
-!start.
+//Non fare niente, vieni comunicato
 
 /* Plans */
 
-+!start : true <- shuffle_deck.
++!turnStart : true <- 
+					?cardsOnHand(X); 
+					deliberate(X).
+
