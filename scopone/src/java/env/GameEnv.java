@@ -15,16 +15,19 @@ public class GameEnv extends Environment {
 	
 	//ENV variables
 	Deck deck;
+	boolean gameStarted = false;
 	
 	@Override
 	public void init(String[] args) {
 		deck = new Deck();
+		updatePercept();
 	}
 	
-	//Percepisce i cambiamenti e aggiorna i belief degli agenti
-	@Override
-	public void addPercept(Literal per) {
-		
+	void updatePercept(){
+		if(gameStarted){
+			gameStarted = true;
+			
+		}
 	}
 	
 	//Viene richiamato dall'agente per eseguire azioni esterne
