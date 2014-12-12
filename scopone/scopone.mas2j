@@ -1,0 +1,12 @@
+MAS scopone {
+
+	infrastructure: Centralised
+
+	environment: env.GameEnv
+
+	agents:
+		basic_player #4;
+
+	aslSourcePath:
+		"src/asl";
+}
