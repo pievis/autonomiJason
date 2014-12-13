@@ -15,7 +15,8 @@ public class Card implements ICard {
 
 	@Override
 	public String getCardStr() {
-		String str = "card(" + number + "," + seed + ")";
+		String seedStr = (seed + "").toLowerCase();
+		String str = "card(" + number + "," + seedStr + ")";
 		return str;
 	}
 

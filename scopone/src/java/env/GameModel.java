@@ -6,25 +6,31 @@ import it.unibo.scopone.impl.agents.AgentPlayer;
 import it.unibo.scopone.impl.agents.BasicPlayer;
 import it.unibo.scopone.interfaces.ICard;
 import it.unibo.scopone.interfaces.IDeck;
+import it.unibo.scopone.interfaces.IPlayerAgent;
 import it.unibo.scopone.interfaces.ITable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameModel{
-	static BasicPlayer p1, p2, p3, p4;
+	BasicPlayer p1, p2, p3, p4;
+	public ITable table;
 	
-	public static void init() {
+	public GameModel() {
+		init();
+	}
+	 
+	public void init() {
 		Deck deck = new Deck();
-		ITable table = Table.getInstance();
+		table = Table.getInstance();
 		initPlayers(table, deck);
 		// All setup, deck should be empty
 		System.out.println("Carte sul tavolo:");
 		table.printTableCards();
-		p1.notifyStartTurn(); // Inizia a giocare, seguiranno tutti gli altri
+		//p1.notifyStartTurn(); // Inizia a giocare, seguiranno tutti gli altri
 	}
 	
-	private static void initPlayers(ITable table, IDeck deck){
+	private  void initPlayers(ITable table, IDeck deck){
 		p4 = new AgentPlayer("p4");
 		p3 = new AgentPlayer("p3", p4);
 		p2 = new AgentPlayer("p2", p3);
@@ -51,7 +57,7 @@ public class GameModel{
 		p4.setCardsOnHand(p4c);
 	}
 	
-	public BasicPlayer getPlayer(int i){
+	public IPlayerAgent getPlayer(int i){
 		if(i == 1)
 			return p1;
 		if(i == 2)

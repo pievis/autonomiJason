@@ -1,8 +1,12 @@
 package it.unibo.scopone.impl.agents;
 
+import jason.asSyntax.Literal;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import utils.PrologUtils;
 
 import it.unibo.scopone.impl.Deck;
 import it.unibo.scopone.impl.Table;
@@ -151,6 +155,25 @@ public class BasicPlayer implements IPlayerAgent {
 		log("Scope: " + scopeCount);
 		log("Carte in mano: " + cardsOnHand.size());
 	}
+	
+	//Json interfaces
+	
+	public List<ICard> getCardsOnHand(){
+		return cardsOnHand;
+	}
+	
+	public Literal getCardsOnHandLiteral(){
+		String str = PrologUtils.cardListToStrRapp(cardsOnHand);
+		Literal lit =Literal.parseLiteral("cardsOnHand(" + str + ")");
+		//log(str);
+		return lit;
+	}
+	
+	public IPlayerAgent getNextPlayer(){
+		return nextAgent;
+	}
+	
+	//
 
 	protected void log(String text) {
 		System.out.println(name + "] " + text);
