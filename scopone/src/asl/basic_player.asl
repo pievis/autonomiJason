@@ -48,7 +48,10 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 								-+intendedAction(action(Name,Card,Taking)).
 								
 +!evaluateCards([],Xt) : true .
-+!evaluateCards([Card|Xs],Xt) : true <- .print("Valuto la carta ", Card). 
++!evaluateCards([Card|Xs],Xt) : true <- .print("Valuto la carta ", Card);
+										playerLib.trustScopa(Card,Xt,Trust);
+										+trust(Card,scopa,Trust).
+			
 
 +intendedAction(Action) : true <- .print("Azione selezionata: ", Action);
 								//playAction(Action);

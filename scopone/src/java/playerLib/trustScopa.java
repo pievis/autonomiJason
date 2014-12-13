@@ -43,7 +43,7 @@ public class trustScopa extends DefaultInternalAction {
 	 *            = carta in esame
 	 * @return fiducia
 	 */
-	public double scopa(ICard card, List<ICard> cardsOnTable) {
+	public static double scopa(ICard card, List<ICard> cardsOnTable) {
 		List<List<ICard>> prese = Rules.getPrese(card, cardsOnTable);
 		for(List<ICard> presa : prese)
 			if(presa.size() == cardsOnTable.size())
