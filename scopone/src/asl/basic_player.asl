@@ -38,7 +38,6 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 				playerLib.getScore(Score);
 				.print("Il mio punteggio finale: ", Score).
 
-
 /* Plans failure handling*/
 +!doMove
 	: true

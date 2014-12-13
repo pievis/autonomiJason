@@ -56,9 +56,7 @@ public class GameEnv extends Environment {
 	
 	void updatePercept(){
 		clearPercepts(); //gli agenti scordano quanto percepito in precedenza
-		if(!gameStarted){
-			initPercept();
-		}
+		setupNextPlayer();
 	}
 	
 	void updateCardsOnHandPercept(){
@@ -66,6 +64,10 @@ public class GameEnv extends Environment {
 			BasicPlayer p = (BasicPlayer) gameModel.getPlayer(i);
 			addPercept(p.getName(),p.getCardsOnHandLiteral());
 		}
+	}
+	
+	void updateDeckPercept(){
+		
 	}
 	
 	void updateCardsOnTablePercept(){
