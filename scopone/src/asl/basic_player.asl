@@ -16,7 +16,9 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 
 /* Plans */
 
-+!startGame : canStart <- !doMove.
++!startGame : canStart <- !doMove; ?cardsOnHand(Xh); !printList(Xh).
++!printList([]) : true <- .print("fine").
++!printList([X|Xs]) : true <- .print("stampa",X); !printList(Xs).
 +!startGame : not canStart <- .print("ready").
 
 +!doMove : not gameEnded <- !execute.
@@ -30,9 +32,27 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 						!selectAction(Xh,Xt);
 						!endTurn.
 						
-+!execute : not hasCards <- +gameEnded.			
++!execute : not hasCards <- +gameEnded.		
 
-+!selectAction(Xh,Xt) : true <- .print("Carte in mano ", Xh).
+//Non ci sono carte sul tavolo, allora seleziono a caso dal mazzo
++!selectAction(Xh,[]) : true <- .print("Carte in mano ", Xh);
+								playerLib.selectCardRandom(Xh, Card, Taking);
+								.my_name(Name);
+								-+intendedAction(action(Name,Card,Taking)).
+								
+//Se carte sono sul tavolo allora devo ragionare
++!selectAction(Xh,Xt) : true <- .print("Carte in mano ", Xh);
+								.print("Carte sul tavolo ", Xt);
+								!evaluateCards(Xh, Xt);
+								.my_name(Name);
+								-+intendedAction(action(Name,Card,Taking)).
+								
++!evaluateCards([],Xt) : true .
++!evaluateCards([Card|Xs],Xt) : true <- .print("Valuto la carta ", Card). 
+
++intendedAction(Action) : true <- .print("Azione selezionata: ", Action);
+								//playAction(Action);
+								.broadcast(tell,Action). //Notifica gli altri giocatori dell'azione compiuta
 
 +gameEnded <- .my_name(Name);
 				playerLib.getScore(Score);
