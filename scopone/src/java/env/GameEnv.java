@@ -26,7 +26,6 @@ public class GameEnv extends Environment {
 	
 	static Logger logger = Logger.getLogger(GameEnv.class.getName());
 	
-	
 	//ENV variables
 	GameModel gameModel;
 	boolean gameStarted = false;
