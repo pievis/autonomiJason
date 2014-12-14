@@ -173,6 +173,17 @@ public class BasicPlayer implements IPlayerAgent {
 		return nextAgent;
 	}
 	
+	public List<ICard> getPersonalDeck(){
+		return personalDeck;
+	}
+	
+	public void playAction(Action action)
+	{
+		ICard card = action.playedCard;
+		List<ICard> taking = action.taking;
+		playCard(card, taking);
+	}
+	
 	//
 
 	protected void log(String text) {

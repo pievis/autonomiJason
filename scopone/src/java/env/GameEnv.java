@@ -1,5 +1,6 @@
 package env;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import utils.PrologUtils;
@@ -9,6 +10,7 @@ import com.sun.corba.se.spi.ior.IdentifiableBase;
 import it.unibo.scopone.impl.Deck;
 import it.unibo.scopone.impl.Table;
 import it.unibo.scopone.impl.agents.BasicPlayer;
+import it.unibo.scopone.interfaces.ICard;
 import it.unibo.scopone.interfaces.IPlayerAgent;
 import it.unibo.scopone.interfaces.ITable;
 
@@ -21,7 +23,8 @@ public class GameEnv extends Environment {
 	//LITERALS, FUNCTORS, ETC
 	public static final Literal shuffleLit = Literal.parseLiteral("shuffle_deck");
 	public static final String deliberateFunc = "deliberate";
-	public static final String palyCardFunc = "playCard";
+	public static final String playActionFunc = "playAction";
+	public static final String deckBelifStr = "deck(X)";
 	////////////////////////////////
 	
 	static Logger logger = Logger.getLogger(GameEnv.class.getName());
@@ -57,6 +60,9 @@ public class GameEnv extends Environment {
 	void updatePercept(){
 		clearPercepts(); //gli agenti scordano quanto percepito in precedenza
 		setupNextPlayer();
+		updateCardsOnHandPercept();
+		updateCardsOnTablePercept();
+		updateDeckPercept();
 	}
 	
 	void updateCardsOnHandPercept(){
@@ -67,7 +73,13 @@ public class GameEnv extends Environment {
 	}
 	
 	void updateDeckPercept(){
-		
+		for(int i = 1; i <=4; i++){
+			BasicPlayer p = (BasicPlayer) gameModel.getPlayer(i);
+			List<ICard> deck = p.getPersonalDeck();
+			String deckList = PrologUtils.cardListToStrRapp(deck);
+			String deckLitStr = deckBelifStr.replaceFirst("X", deckList);
+			addPercept(p.getName(), Literal.parseLiteral(deckLitStr));
+		}
 	}
 	
 	void updateCardsOnTablePercept(){
@@ -94,6 +106,11 @@ public class GameEnv extends Environment {
 			result = true;
 			Term term = act.getTerm(0);
 			log(term+"");
+		}
+		if(functor.equals(playActionFunc)){
+			result = true;
+			Term term = act.getTerm(0); //this is the action
+			log("*Action intended: " + term);
 		}
 		return result;
 	}

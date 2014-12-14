@@ -4,8 +4,12 @@
 //Perceptions
 //cardsOnHand([]). //lista di carte che ha in mano, inizialmente vuota
 //cardsOnTable([]). //Non ha ancora percezione delle carte in gioco
+//deck([]). //Il mazzetto
 //nextPlayer(Name). //conosce il gioco del prossimo giocatore
 //~gameEnded. //esiste se il gioco è terminato
+
+scope_count(p1,0).
+current_turn(1).
 canStart :- .my_name(MyName) & (p1 == MyName).
 hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 
@@ -16,12 +20,14 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 
 /* Plans */
 
-+!startGame : canStart <- !doMove; ?cardsOnHand(Xh); !printList(Xh).
-+!printList([]) : true <- .print("fine").
-+!printList([X|Xs]) : true <- .print("stampa",X); !printList(Xs).
++!startGame : canStart <- !doMove.
 +!startGame : not canStart <- .print("ready").
 
-+!doMove : not gameEnded <- !execute.
++!updateTurn : true <- ?current_turn(N);
+						 NewTurn = N+1; 
+						 -+current_turn(NewTurn).
+
++!doMove : not gameEnded <- !updateTurn; !execute.
 					
 +!endTurn : true <- .print("my turn ended");
 					?nextPlayer(NextP);
@@ -44,17 +50,51 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 +!selectAction(Xh,Xt) : true <- .print("Carte in mano ", Xh);
 								.print("Carte sul tavolo ", Xt);
 								!evaluateCards(Xh, Xt);
-								.my_name(Name);
-								-+intendedAction(action(Name,Card,Taking)).
-								
+								!selectByTrust.
+
+//valuta la finducia nello scegliere una determinata carta
+//ragiona in base ai diversi sotto obbiettivi del gioco (fare denari, scope, ecc)
 +!evaluateCards([],Xt) : true .
 +!evaluateCards([Card|Xs],Xt) : true <- .print("Valuto la carta ", Card);
-										playerLib.trustScopa(Card,Xt,Trust);
-										+trust(Card,scopa,Trust).
-			
+										!!evaluateTrustScopa(Card,Xt);
+										!!evaluateTrustDenari(Card,Xt);
+										!!evaluateTrustCarte(Card,Xt);
+										!!evaluateTrustSettebello(Card,Xt);
+										!!evaluateTrustPrimiera(Card,Xt);
+										!evaluateCards(Xs,Xt).
+										
+///Trust evaluation	/////////////////////////////////////////////							
++!evaluateTrustScopa(Card,Xt) : true <- playerLib.trustScopa(Card,Xt,Trust);
+										?current_turn(N);
+										+trust(N,Card,scopa,Trust).
+										
++!evaluateTrustCarte(Card,Xt) : true <- playerLib.trustCarte(Card,Xt,Trust);
+										?current_turn(N);
+										+trust(N,Card,carte,Trust).
+
++!evaluateTrustSettebello(Card,Xt) : true <- playerLib.trustSettebello(Card,Xt,Trust);
+										?current_turn(N);
+										+trust(N,Card,settebello,Trust).
+
++!evaluateTrustPrimiera(Card,Xt) : true <- playerLib.trustPrimiera(Card,Xt,Trust);
+										?current_turn(N);
+										+trust(N,Card,primiera,Trust).
+										
++!evaluateTrustDenari(Card,Xt) : true <- playerLib.trustDenari(Card,Xt,Trust);
+										?current_turn(N);
+										+trust(N,Card,denari,Trust).
+
+///////////////////////////////////////////////////////////////////////
+
++!selectByTrust : true <- 	?current_turn(Turn);
+							.findall(trust(Card,Obj,Val), (trust(Turn,Card,Obj,Val) & Val > 0.0), L); //tutti i valori di fiducia per il contesto corrente
+							.print("trust list: ", L);
+							playerLib.selectCardWithThinking(L, Card, Taking);
+							.my_name(Name);
+							-+intendedAction(action(Name,Card,Taking)).
 
 +intendedAction(Action) : true <- .print("Azione selezionata: ", Action);
-								//playAction(Action);
+								playAction(Action); //External action
 								.broadcast(tell,Action). //Notifica gli altri giocatori dell'azione compiuta
 
 +gameEnded <- .my_name(Name);
