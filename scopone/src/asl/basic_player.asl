@@ -8,10 +8,10 @@
 //nextPlayer(Name). //conosce il gioco del prossimo giocatore
 //~gameEnded. //esiste se il gioco è terminato
 
-scope_count(p1,0).
-scope_count(p2,0).
-scope_count(p3,0).
-scope_count(p4,0).
+//scope_count(p1,0).
+//scope_count(p2,0).
+//scope_count(p3,0).
+//scope_count(p4,0).
 
 current_turn(1).
 canStart :- .my_name(MyName) & (p1 == MyName).
@@ -25,18 +25,36 @@ hasCards.
 
 /* Plans */
 
-+!startGame : canStart <- !doMove.
-+!startGame : not canStart <- .print("ready").
++!startGame : canStart <- !tellScopeCount; !doMove.
++!startGame : not canStart <- !tellScopeCount;.print("ready").
+
+//partono tutti con lo stesso valore di scope
++!tellScopeCount : true <- 	.my_name(Name); 
+							+scope_count(Name,0);
+							.broadcast(tell,scope_count(Name,0)).
 
 +!updateTurn : true <- ?current_turn(N);
 						 NewTurn = N+1; 
 						 -+current_turn(NewTurn).
 
-+!doMove : not gameEnded <- !updateTurn; !execute; !seeIfDone.
++!doMove : not gameEnded <- !updateTurn; 
+							!execute;
+							!seeIfDone.
+							
 +!seeIfDone : true <- ?cardsOnHand(Xl);
 					 	Xl == []; //if I've no cards
 					 	-hasCards. //update my belief
 
++!checkScopa : true <- ?cardsOnTable(Xt);
+						!updateScopa(Xt).
+						
++!updateScopa(Xt) : Xt == [] <- .my_name(Name);
+								?scope_count(Name,N);
+								Nscope = N+1;
+								.print("Scopa! scope=",Nscope);
+								.broadcast(untell,scope_count(Name,N));
+								.broadcast(tell,scope_count(Name,Nscope));
+								-+scope_count(Name,Nscope).
 					
 +!endTurn : true <- .print("my turn ended");
 					?nextPlayer(NextP);
@@ -45,6 +63,7 @@ hasCards.
 +!execute : hasCards <- ?cardsOnHand(Xh);
 						?cardsOnTable(Xt);
 						!selectAction(Xh,Xt);
+						!checkScopa; //controlla se hai fatto scopa
 						!endTurn.
 						
 +!execute : not hasCards <- +gameEnded; !tellEveryoneGameEnded.
@@ -67,7 +86,7 @@ hasCards.
 //valuta la finducia nello scegliere una determinata carta
 //ragiona in base ai diversi sotto obbiettivi del gioco (fare denari, scope, ecc)
 +!evaluateCards([],Xt) : true .
-+!evaluateCards([Card|Xs],Xt) : true <- .print("Valuto la carta ", Card);
++!evaluateCards([Card|Xs],Xt) : true <- //.print("Valuto la carta ", Card);
 										!!evaluateTrustScopa(Card,Xt);
 										!!evaluateTrustDenari(Card,Xt);
 										!!evaluateTrustCarte(Card,Xt);
@@ -121,9 +140,33 @@ hasCards.
 				?deck(Deck);
 				?scope_count(Name,Nscope);
 				playerLib.getScore(Deck,Nscope,Score);
-				.print("Il mio punteggio finale: ", Score).
+				+score(Name,Score);
+				.print("Il mio punteggio finale: ", Score);
+				!tellEveryoneScore(score(Name,Score)).
+				
+				
++!tellEveryoneScore(ScoreTerm) : true <- .broadcast(tell,ScoreTerm);
+										!tellWinner.
 
-////
+
++!tellWinner : true <- .count(score(Ag,_),N);
+						N >= 4; //posso dire il vincitore solo se so il punteggio di tutti
+						.findall(score(Name,Val), score(Name,Val), L);
+						playerLib.getWinner(L,Winner);
+						.print("Risultato: ", Winner).
+
+//+score(Ag,Score)[source(S)] : S == Ag <- .my_name(Name); 
+//											?score(Name,X);
+//											X > Score;
+//											+winner(Name,Ag).
+//
+//+!checkImWinner : true <- .my_name(Name);
+//						.count(winner(Name,_),N);
+//						N >= 3;
+//						.print("Ho vinto!").
+						
+
+/////////
 +!doMove
 	: true
 	<- .current_intention(I); // notice INTERNAL action to retrieve the execution "context"
@@ -135,6 +178,20 @@ hasCards.
 
 +gameEnded : hasCards <- .print("Io ho ancora delle carte").
 
+//+scope_count(Ag,N)[source(S)] : S == Ag <- -+scope_count(Ag,N).
+
 /* Plans failure handling*/
 -!getScore : true <- .current_intention(I); // notice INTERNAL action to retrieve the execution "context"
 		.print("Failed to achieve goal '!getScore'. Current intention is: ", I). // print debug info
+		
+-!seeIfDone : true. //è previsto che fallisca
+		
+-!updateScopa(_) : true . //nessuna scopa in questa mano
+
+-!score(Ag,_) : true <- .print(Ag," ha fatto più punti di me."); .my_name(Name); +loser(Name,Ag).
+
+-!checkImWinner : true .
+
+-!tellWinner : true . //previsto che fallisca
+
+-score(_,_)[source(_)] : true .

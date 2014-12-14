@@ -31,7 +31,7 @@ public class selectCardWithThinking extends DefaultInternalAction {
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         // execute the internal action
-        ts.getAg().getLogger().info("executing internal action 'playerLib.selectCardWithThinking'");
+        //ts.getAg().getLogger().info("executing internal action 'playerLib.selectCardWithThinking'");
         if (!args[0].isList() || !args[1].isVar() || !args[2].isVar()) {
 			throw new JasonException("check arguments");
 		}

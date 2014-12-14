@@ -140,6 +140,7 @@ public class Rules {
 		for (ICard card : personalDeck) {
 			if (card.getNumber() == 7 && card.getSeed() == Seed.DENARI) {
 				// punto settebello
+				System.out.println("Sette bello");
 				score += 1;
 			}
 			if (card.getSeed() == Seed.DENARI) {
@@ -161,6 +162,9 @@ public class Rules {
 			// punto primiera
 			score += 1;
 		}
+		System.out.println("Carte: " + personalDeck.size());
+		System.out.println("Denari: " + numDenari);
+		System.out.println("Num Sette (primiera): " + numSette);
 		return score + numScope;
 	}
 
@@ -174,7 +178,7 @@ public class Rules {
 	 * @param card
 	 * @return true se card e' il settebello
 	 */
-	public static int setteBelloScore(ICard card) {
+	private static int setteBelloScore(ICard card) {
 		if (card.getNumber() == 7 && card.getSeed() == Seed.DENARI)
 			return 1;
 		return 0;
