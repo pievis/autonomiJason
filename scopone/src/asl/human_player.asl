@@ -71,8 +71,8 @@ hasCards.
 +!tellEveryoneGameEnded : gameEnded <- .broadcast(tell,gameEnded).	
 
 //Non ci sono carte sul tavolo, allora seleziono a caso dal mazzo
-+!selectAction(Xh,[]) : true <- .print("Carte in mano ", Xh);
-								!selectRandom(Xh).
+//+!selectAction(Xh,[]) : true <- .print("Carte in mano ", Xh);
+//								!selectRandom(Xh).
 								
 +!selectRandom(Xh) : hasCards <-playerLib.selectCardRandom(Xh, Card, Taking);
 								.my_name(Name);
@@ -80,8 +80,11 @@ hasCards.
 //Se carte sono sul tavolo allora devo ragionare
 +!selectAction(Xh,Xt) : true <- .print("Carte in mano ", Xh);
 								.print("Carte sul tavolo ", Xt);
-								!evaluateCards(Xh, Xt);
-								!selectByTrust.
+								.my_name(Name);
+								playerLib.selectCardInput(Xh, Card, Taking);
+								-+intendedAction(action(Name,Card,Taking)).
+//								!evaluateCards(Xh, Xt);
+//								!selectByTrust.
 
 //valuta la finducia nello scegliere una determinata carta
 //ragiona in base ai diversi sotto obbiettivi del gioco (fare denari, scope, ecc)
@@ -121,7 +124,6 @@ hasCards.
 							.findall(trust(Card,Obj,Val), (trust(Turn,Card,Obj,Val) & Val > 0.0), L); //tutti i valori di fiducia per il contesto corrente
 							.print("trust list: ", L);
 							!actByTrust(L).
-							
 
 +!actByTrust([]) : true <- ?cardsOnHand(Xh); //non ho fiducia in nessuna carta, allora scelgo random
 							!selectRandom(Xh).

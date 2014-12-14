@@ -13,6 +13,6 @@ public class SelectCardFrame extends JFrame {
 		this.cards = cards;
 		setTitle("Select one card");
 		setSize(300,200);
-		for(cards )
+		//for(cards )
 	}
 }

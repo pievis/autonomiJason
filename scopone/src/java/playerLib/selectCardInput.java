@@ -19,7 +19,7 @@ import jason.*;
 import jason.asSemantics.*;
 import jason.asSyntax.*;
 
-public class selectCardRandom extends DefaultInternalAction {
+public class selectCardInput extends DefaultInternalAction {
 
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
@@ -38,14 +38,19 @@ public class selectCardRandom extends DefaultInternalAction {
 	    											"Selection", JOptionPane.PLAIN_MESSAGE,
 	    											null,possibilities,possibilities[0]);
 	    
+	    boolean result = false;
+	    Term selCardTerm;
+	    ICard card;
 	    if(selection == null){
-	    	
+		    int rand = new Random().nextInt(cardList.size());
+		    selCardTerm = cardList.get(rand);
+		    card = PrologUtils.parseCard(selCardTerm+"");
+	//	    String player = "p1";
 	    }
-	    
-	    int rand = new Random().nextInt(cardList.size());
-	    Term randCardTerm = cardList.get(rand);
-//	    String player = "p1";
-	    ICard card = PrologUtils.parseCard(randCardTerm+"");
+	    else{
+	    	selCardTerm = Literal.parse(selection);
+	    	card = PrologUtils.parseCard(selection);
+	    }
 	    List<List<ICard>> takings = Rules.getPrese(card, Table.getInstance().cardsOnTable());
 	    List<ICard> taking;
 	    if(takings.size() > 0)
@@ -57,7 +62,8 @@ public class selectCardRandom extends DefaultInternalAction {
 //	    ts.getAg().getLogger().info("ACTION : " + retAction.getRep());
 //	    Term retTerm = Literal.parse(retAction.getRep());
 //	    ts.getAg().getLogger().info("Unifies with: " + retTerm);
-	    boolean result = un.unifies(args[1], randCardTerm)
+	    
+	    result = un.unifies(args[1], selCardTerm)
 	    	&& un.unifies(args[2], takingTerm);
 	    return result;
     }
