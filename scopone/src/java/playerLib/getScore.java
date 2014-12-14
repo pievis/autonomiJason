@@ -19,8 +19,8 @@ public class getScore extends DefaultInternalAction {
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args)
 			throws Exception {
 		// execute the internal action
-		ts.getAg().getLogger()
-				.info("executing internal action 'playerLib.getScore'");
+//		ts.getAg().getLogger()
+//				.info("executing internal action 'playerLib.getScore'");
 		if (!args[0].isList() || !args[1].isNumeric() || !args[2].isVar()) {
 			throw new JasonException("check arguments");
 		}

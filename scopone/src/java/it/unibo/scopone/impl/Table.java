@@ -39,12 +39,29 @@ public class Table implements ITable {
 			cardsOnTable.add(card);
 			if (taking.size() != 0) {
 				// Presa effettuata, raccolgono carte dal tavolo
-				cardsOnTable.removeAll(taking);
+				//cardsOnTable.removeAll(taking);
+				removeCardsFromTable(taking);
 			}
 			updateTableView();
 			return true;
 		} else
 			return false;
+	}
+	
+	//side effects
+	private void removeCardFromTable(ICard card){
+		int remIndex = -1;
+		for(int i = 0; i < cardsOnTable.size(); i++)
+			if(cardsOnTable.get(i).getCardStr().equals(card.getCardStr()))
+				remIndex = i;
+		if(remIndex >= 0)
+			cardsOnTable.remove(remIndex);
+	}
+	//side effects
+	private void removeCardsFromTable(List<ICard> remCard){
+		for(ICard card : remCard){
+			removeCardFromTable(card);
+		}
 	}
 	
 	private void updateTableView(){

@@ -54,7 +54,7 @@ public class Rules {
 	 * 
 	 * @param card
 	 * @param tableCards
-	 * @return true se la mossa � possibile
+	 * @return true se la mossa è possibile
 	 */
 	public static boolean existPresa(ICard card, List<ICard> tableCards) {
 		for (ICard c : tableCards)
@@ -71,7 +71,7 @@ public class Rules {
 	 * @param card
 	 * @param tableCards
 	 * @param presa
-	 * @return true se � possibile fare la presa richiesta
+	 * @return true se è possibile fare la presa richiesta
 	 */
 	public static boolean presaPossibile(ICard card, List<ICard> tableCards,
 			List<ICard> presa) {
@@ -82,11 +82,20 @@ public class Rules {
 				equalsPresa = false;
 			if (equalsPresa)
 				for (ICard c : subp) {
-					if (!presa.contains(c))
+					//if (!presa.contains(c))
+					if(!listCardContains(presa,c))
 						equalsPresa = false;
 				}
 			if (equalsPresa)
-				return true; // la presa � tra quelle possibili
+				return true; // la presa è tra quelle possibili
+		}
+		return false;
+	}
+	
+	private static boolean listCardContains(List<ICard> list, ICard card){
+		for(ICard c : list){
+			if(c.getCardStr().equals(card.getCardStr()))
+				return true;
 		}
 		return false;
 	}

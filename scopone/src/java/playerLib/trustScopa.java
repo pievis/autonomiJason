@@ -23,7 +23,7 @@ public class trustScopa extends DefaultInternalAction {
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         // execute the internal action
-        ts.getAg().getLogger().info("executing internal action 'playerLib.trustScopa'");
+//        ts.getAg().getLogger().info("executing internal action 'playerLib.trustScopa'");
         if (!args[0].isGround() || !args[1].isList() || !args[2].isVar())
         	throw new JasonException("check arguments");
         ListTerm cardsOnTableTerm = ListTermImpl.parseList(args[1]+"");

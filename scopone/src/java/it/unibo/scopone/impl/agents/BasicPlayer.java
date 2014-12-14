@@ -80,21 +80,31 @@ public class BasicPlayer implements IPlayerAgent {
 
 	}
 
-	private void playCard(ICard card, List<ICard> taking) {
+	protected boolean playCard(ICard card, List<ICard> taking) {
 		if (table.action(card, taking)) {
 			log("Giocata la carta " + card.getCardStr());
-			cardsOnHand.remove(card); // rimuove la carta dalla mano
+			//cardsOnHand.remove(card); // rimuove la carta dalla mano
+			removeCardFromHand(card); // rimuove la carta dalla mano
 			if (taking.size() != 0){
 				personalDeck.addAll(taking); // Aggiungo le carte al mazzetto
 				log("Presa: " + cardsListStr(taking));
 				}
 			if(table.cardsOnTable().size() == 0)
 				scopeCount++; //Ho eseguito una scopa;
+			return true; //buon fine
 		} else {
-			log("Impossibile giocare la carta " + card.getCardStr());
-			throw new IllegalStateException("L'agente " + getName()
-					+ " sta eseguendo un azione non valida");
+			return false;
 		}
+	}
+	
+	//side effect
+	private void removeCardFromHand(ICard card){
+		int remIndex = -1;
+		for(int i = 0; i < cardsOnHand.size(); i++)
+			if(cardsOnHand.get(i).getCardStr().equals(card.getCardStr()))
+				remIndex = i;
+		if(remIndex >= 0)
+			cardsOnHand.remove(remIndex);
 	}
 
 	private void endTurn() {
@@ -134,8 +144,13 @@ public class BasicPlayer implements IPlayerAgent {
 	private void execute() {
 		deliberate();
 		if (intendedAction != null) {
-			playCard(intendedAction.playedCard, intendedAction.taking);
-			endTurn(); // il tuo turno ï¿½ terminato
+			boolean result = playCard(intendedAction.playedCard, intendedAction.taking);
+			if(result == false){
+				log("Impossibile giocare la carta " + intendedAction.playedCard.getCardStr());
+				throw new IllegalStateException("L'agente " + getName()
+						+ " sta eseguendo un azione non valida");
+			}
+			endTurn(); // il tuo turno è terminato
 		} else {
 			log("deliberation() non ha restituito nessuna azione");
 			throw new IllegalStateException(
@@ -156,35 +171,7 @@ public class BasicPlayer implements IPlayerAgent {
 		log("Carte in mano: " + cardsOnHand.size());
 	}
 	
-	//Json interfaces
 	
-	public List<ICard> getCardsOnHand(){
-		return cardsOnHand;
-	}
-	
-	public Literal getCardsOnHandLiteral(){
-		String str = PrologUtils.cardListToStrRapp(cardsOnHand);
-		Literal lit =Literal.parseLiteral("cardsOnHand(" + str + ")");
-		//log(str);
-		return lit;
-	}
-	
-	public IPlayerAgent getNextPlayer(){
-		return nextAgent;
-	}
-	
-	public List<ICard> getPersonalDeck(){
-		return personalDeck;
-	}
-	
-	public void playAction(Action action)
-	{
-		ICard card = action.playedCard;
-		List<ICard> taking = action.taking;
-		playCard(card, taking);
-	}
-	
-	//
 
 	protected void log(String text) {
 		System.out.println(name + "] " + text);

@@ -5,7 +5,9 @@ import it.unibo.scopone.interfaces.ICard;
 import it.unibo.scopone.structs.Action;
 import it.unibo.scopone.structs.Seed;
 import jason.asSyntax.ListTerm;
+import jason.asSyntax.ListTermImpl;
 import jason.asSyntax.Literal;
+import jason.asSyntax.Structure;
 import jason.asSyntax.Term;
 
 import java.util.ArrayList;
@@ -33,6 +35,20 @@ public class PrologUtils {
 	public static Term generateActionTerm(Action action) {
 		String str = action.getRep();
 		return Literal.parse(str);
+	}
+	
+	//action str example:
+	//action(p4,card(9,denari),[card(7,denari),card(2,bastoni),card(9,denari)])
+	public static Action parseActionTerm(String actionStr){
+		Action action = null;
+		Structure lstruct  = Structure.parse(actionStr + "");
+		Term pnameTerm = lstruct.getTerm(0);
+		Term scardTerm = lstruct.getTerm(1);
+		ListTerm takingTerm = ListTermImpl.parseList(lstruct.getTerm(2)+"");
+		ICard scard = parseCard(scardTerm+"");
+		List<ICard> taking = parseCardList(takingTerm);
+		action = new Action(pnameTerm+"", scard, taking);
+		return action;
 	}
 
 	// card(10,bastoni)

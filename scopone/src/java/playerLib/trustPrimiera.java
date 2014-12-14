@@ -18,8 +18,8 @@ public class trustPrimiera extends DefaultInternalAction {
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args)
 			throws Exception {
 		// execute the internal action
-		ts.getAg().getLogger()
-				.info("executing internal action 'playerLib.trustPrimiera'");
+//		ts.getAg().getLogger()
+//				.info("executing internal action 'playerLib.trustPrimiera'");
 		if (!args[0].isGround() || !args[1].isList() || !args[2].isVar()) {
 			throw new JasonException("check arguments");
 		}

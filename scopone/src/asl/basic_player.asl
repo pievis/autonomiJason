@@ -9,9 +9,14 @@
 //~gameEnded. //esiste se il gioco è terminato
 
 scope_count(p1,0).
+scope_count(p2,0).
+scope_count(p3,0).
+scope_count(p4,0).
+
 current_turn(1).
 canStart :- .my_name(MyName) & (p1 == MyName).
-hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
+//hasCards(cardsOnHand(Xl)) :- cardsOnHand(Xl) & Xl \== [].
+hasCards.
 
 /* Initial goals */
 
@@ -27,7 +32,11 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 						 NewTurn = N+1; 
 						 -+current_turn(NewTurn).
 
-+!doMove : not gameEnded <- !updateTurn; !execute.
++!doMove : not gameEnded <- !updateTurn; !execute; !seeIfDone.
++!seeIfDone : true <- ?cardsOnHand(Xl);
+					 	Xl == []; //if I've no cards
+					 	-hasCards. //update my belief
+
 					
 +!endTurn : true <- .print("my turn ended");
 					?nextPlayer(NextP);
@@ -38,14 +47,17 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 						!selectAction(Xh,Xt);
 						!endTurn.
 						
-+!execute : not hasCards <- +gameEnded.		
++!execute : not hasCards <- +gameEnded; !tellEveryoneGameEnded.
+
++!tellEveryoneGameEnded : gameEnded <- .broadcast(tell,gameEnded).	
 
 //Non ci sono carte sul tavolo, allora seleziono a caso dal mazzo
 +!selectAction(Xh,[]) : true <- .print("Carte in mano ", Xh);
-								playerLib.selectCardRandom(Xh, Card, Taking);
-								.my_name(Name);
-								-+intendedAction(action(Name,Card,Taking)).
+								!selectRandom(Xh).
 								
++!selectRandom(Xh) : hasCards <-playerLib.selectCardRandom(Xh, Card, Taking);
+								.my_name(Name);
+								-+intendedAction(action(Name,Card,Taking)).								
 //Se carte sono sul tavolo allora devo ragionare
 +!selectAction(Xh,Xt) : true <- .print("Carte in mano ", Xh);
 								.print("Carte sul tavolo ", Xt);
@@ -89,20 +101,40 @@ hasCards :- cardsOnHand(Xl) & .length(Xl, X) & X \== 0.
 +!selectByTrust : true <- 	?current_turn(Turn);
 							.findall(trust(Card,Obj,Val), (trust(Turn,Card,Obj,Val) & Val > 0.0), L); //tutti i valori di fiducia per il contesto corrente
 							.print("trust list: ", L);
-							playerLib.selectCardWithThinking(L, Card, Taking);
+							!actByTrust(L).
+							
+
++!actByTrust([]) : true <- ?cardsOnHand(Xh); //non ho fiducia in nessuna carta, allora scelgo random
+							!selectRandom(Xh).
+							
++!actByTrust(L) : true <- playerLib.selectCardWithThinking(L, Card, Taking);
 							.my_name(Name);
 							-+intendedAction(action(Name,Card,Taking)).
 
 +intendedAction(Action) : true <- .print("Azione selezionata: ", Action);
 								playAction(Action); //External action
 								.broadcast(tell,Action). //Notifica gli altri giocatori dell'azione compiuta
+//Il gioco è terminato
++gameEnded : not hasCards <- !getScore.
 
-+gameEnded <- .my_name(Name);
-				playerLib.getScore(Score);
++!getScore : true <- .my_name(Name);
+				?deck(Deck);
+				?scope_count(Name,Nscope);
+				playerLib.getScore(Deck,Nscope,Score);
 				.print("Il mio punteggio finale: ", Score).
 
-/* Plans failure handling*/
+////
 +!doMove
 	: true
 	<- .current_intention(I); // notice INTERNAL action to retrieve the execution "context"
 		.print("Failed to achieve goal '!doMove'. Current intention is: ", I). // print debug info	
+		
++!selectRandom(Xh) : not hasCards <- .print("Non posso scegliere se non ho carte").
+
++!tellEveryoneGameEnded : not gameEnded <- .print("Non voglio confondere gli altri giocatori").
+
++gameEnded : hasCards <- .print("Io ho ancora delle carte").
+
+/* Plans failure handling*/
+-!getScore : true <- .current_intention(I); // notice INTERNAL action to retrieve the execution "context"
+		.print("Failed to achieve goal '!getScore'. Current intention is: ", I). // print debug info

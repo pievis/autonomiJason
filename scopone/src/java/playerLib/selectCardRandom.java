@@ -22,7 +22,7 @@ public class selectCardRandom extends DefaultInternalAction {
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         // execute the internal action
-        ts.getAg().getLogger().info("executing internal action 'playerLib.selectCardRandom'");
+        //ts.getAg().getLogger().info("executing internal action 'playerLib.selectCardRandom'");
         if (!args[0].isList() || !args[1].isVar() || !args[2].isVar())
         	throw new JasonException("check arguments");
 	    ListTerm cardList = ListTermImpl.parseList(args[0]+"");

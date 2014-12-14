@@ -18,8 +18,8 @@ public class trustCarte extends DefaultInternalAction {
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args)
 			throws Exception {
 		// execute the internal action
-		ts.getAg().getLogger()
-				.info("executing internal action 'playerLib.trustCarte'");
+//		ts.getAg().getLogger()
+//				.info("executing internal action 'playerLib.trustCarte'");
 		if (!args[0].isGround() || !args[1].isList() || !args[2].isVar()) {
 			throw new JasonException("check arguments");
 		}

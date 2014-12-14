@@ -5,13 +5,9 @@ import java.util.logging.Logger;
 
 import utils.PrologUtils;
 
-import com.sun.corba.se.spi.ior.IdentifiableBase;
-
-import it.unibo.scopone.impl.Deck;
 import it.unibo.scopone.impl.Table;
-import it.unibo.scopone.impl.agents.BasicPlayer;
+import it.unibo.scopone.impl.agents.JasonPlayer;
 import it.unibo.scopone.interfaces.ICard;
-import it.unibo.scopone.interfaces.IPlayerAgent;
 import it.unibo.scopone.interfaces.ITable;
 
 import jason.asSyntax.Literal;
@@ -50,7 +46,7 @@ public class GameEnv extends Environment {
 	
 	void setupNextPlayer(){
 		for(int i = 1; i <=4; i++){
-			BasicPlayer p = (BasicPlayer) gameModel.getPlayer(i);
+			JasonPlayer p = (JasonPlayer) gameModel.getPlayer(i);
 			String litString = "nextPlayer("+p.getNextPlayer().getName()+")";
 			Literal nextPlayerLit = Literal.parseLiteral(litString);
 			addPercept(p.getName(),nextPlayerLit);
@@ -67,14 +63,14 @@ public class GameEnv extends Environment {
 	
 	void updateCardsOnHandPercept(){
 		for(int i = 1; i <=4; i++){
-			BasicPlayer p = (BasicPlayer) gameModel.getPlayer(i);
+			JasonPlayer p = (JasonPlayer) gameModel.getPlayer(i);
 			addPercept(p.getName(),p.getCardsOnHandLiteral());
 		}
 	}
 	
 	void updateDeckPercept(){
 		for(int i = 1; i <=4; i++){
-			BasicPlayer p = (BasicPlayer) gameModel.getPlayer(i);
+			JasonPlayer p = (JasonPlayer) gameModel.getPlayer(i);
 			List<ICard> deck = p.getPersonalDeck();
 			String deckList = PrologUtils.cardListToStrRapp(deck);
 			String deckLitStr = deckBelifStr.replaceFirst("X", deckList);
@@ -109,8 +105,10 @@ public class GameEnv extends Environment {
 		}
 		if(functor.equals(playActionFunc)){
 			result = true;
-			Term term = act.getTerm(0); //this is the action
-			log("*Action intended: " + term);
+			Term actionTerm = act.getTerm(0); //this is the action
+			//log("*Action intended: " + actionTerm);
+			gameModel.PlayAction(actionTerm, agName);
+			updatePercept();
 		}
 		return result;
 	}
