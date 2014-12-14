@@ -2,7 +2,10 @@
 
 package playerLib;
 
+import it.unibo.scopone.impl.Card;
+import it.unibo.scopone.impl.Table;
 import it.unibo.scopone.interfaces.ICard;
+import it.unibo.scopone.structs.Rules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,19 +36,33 @@ public class selectCardWithThinking extends DefaultInternalAction {
 			throw new JasonException("check arguments");
 		}
         
-        List<ICard> selection = new ArrayList<ICard>();
         ListTerm trustedValues = ListTermImpl.parseList(args[0] + "");
-        for(Term trustTerm : trustedValues ){
+        List<ICard> selection = new ArrayList<ICard>();
+        double[] trustArray = new double[trustedValues.size()];
+        //map everything I need into the arrays
+        for(int i = 0; i < trustedValues.size(); i++){
+        	Term trustTerm = trustedValues.get(i);
         	//let's store every trusted card
         	Structure trustStruct  = Structure.parse(trustTerm + "");
         	ICard card = PrologUtils.parseCard(trustStruct.getTerm(0)+""); //prendo la carta
-        	//ignoro l'obbiettivo per il momento
-        	
+        	selection.add(i, card);
+        	trustArray[i] = Double.parseDouble(trustStruct.getTerm(2)+"");
         }
-        
-        // everything ok, so returns true
-        return true;
+        ICard selectedCard = getCartWithProbability(trustArray, selection);
+        List<List<ICard>> takings = Rules.getPrese(selectedCard, Table.getInstance().cardsOnTable());
+	    List<ICard> taking;
+	    if(takings.size() > 0)
+	    	taking = takings.get(0);
+	    else
+	    	taking = new ArrayList<ICard>();
+	    Term takingTerm = Literal.parse(PrologUtils.cardListToStrRapp(taking));
+	    Term cardTerm = Literal.parse(selectedCard.getCardStr());
+	    boolean result = un.unifies(args[1], cardTerm)
+		    	&& un.unifies(args[2], takingTerm);
+        return result;
     }
+    
+    
     
     ICard getCartWithProbability(double[] trustArray, List<ICard> cardsOnHand) {
 		ICard card = null;
