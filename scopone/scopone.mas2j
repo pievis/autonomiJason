@@ -6,9 +6,9 @@ MAS scopone {
 
 	agents:
 		//basic_player #4;
-//		p1 human_player;
+		p1 human_player;
 //		p3 human_player;
-		p1 basic_player;
+//		p1 basic_player;
 //		p1 human_player;
 		p2 denari_player;
 		p3 card_player;
